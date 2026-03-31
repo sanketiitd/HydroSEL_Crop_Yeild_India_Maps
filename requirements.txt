@@ -6,6 +6,4 @@ streamlit-folium
 branca
 numpy
 shapely
-fiona
-pyproj
-rtree
+pyogrio
