@@ -50,7 +50,7 @@ map_tiles = {
 
 @st.cache_resource
 def load_shapefile():
-    gdf = gpd.read_file("DISTRICT_BOUNDARY.shp")
+    gdf = gpd.read_file("DISTRICT_BOUNDARY_small.shp")
     gdf = gdf.to_crs(epsg=4326)
     gdf["DISTRICT"] = gdf["DISTRICT"].str.strip().str.upper()
     gdf["geometry"] = gdf["geometry"].simplify(0.02)
