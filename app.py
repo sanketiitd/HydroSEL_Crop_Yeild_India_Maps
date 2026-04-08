@@ -91,9 +91,6 @@ try:
     st.html(banner_html)
 except AttributeError:
     st.markdown(banner_html, unsafe_allow_html=True)
-
-st.markdown("---")
-
 # -------------------------------------------------
 # LOAD DATA
 # -------------------------------------------------
@@ -163,6 +160,7 @@ m = folium.Map(
 # -------------------------------------------------
 # APPLY FILTERS
 # -------------------------------------------------
+
 if apply_filters:
 
     filtered = df[
@@ -178,15 +176,66 @@ if apply_filters:
         how="inner"
     )
 
+    # --- UPDATED STYLED METRICS (VISIBLE IN LIGHT MODE) ---
+    districts_count = len(map_df)
+    avg_yield = round(map_df["Yield"].mean(), 2) if len(map_df) > 0 else 0
+    max_yield = round(map_df["Yield"].max(), 2) if len(map_df) > 0 else 0
+
+    st.markdown("""
+        <style>
+        .metric-card {
+            background-color: #fdfdfd; 
+            border: 1px solid #eeeeee;
+            padding: 18px 22px;
+            border-radius: 10px;
+            border-left: 6px solid #3194eb;
+            text-align: left;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .metric-label {
+            font-size: 13px;
+            color: #555555; /* Dark gray for visibility */
+            margin-bottom: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0b5394; /* Deep blue for contrast */
+            font-family: 'Rockwell', 'Courier Bold', serif;
+            line-height: 1.2;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns(3)
-    col1.metric("Districts", len(map_df))
-    col2.metric("Average Yield (t/ha)", round(map_df["Yield"].mean(), 2) if len(map_df) > 0 else 0)
-    col3.metric("Max Yield (t/ha)", round(map_df["Yield"].max(), 2) if len(map_df) > 0 else 0)
+    
+    with col1:
+        st.markdown(f"""<div class="metric-card">
+            <div class="metric-label">Districts</div>
+            <div class="metric-value">{districts_count}</div>
+        </div>""", unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown(f"""<div class="metric-card" style="border-left-color: #6aa84f;">
+            <div class="metric-label">Average Yield (t/ha)</div>
+            <div class="metric-value">{avg_yield}</div>
+        </div>""", unsafe_allow_html=True)
+        
+    with col3:
+        st.markdown(f"""<div class="metric-card" style="border-left-color: #ff9900;">
+            <div class="metric-label">Max Yield (t/ha)</div>
+            <div class="metric-value">{max_yield}</div>
+        </div>""", unsafe_allow_html=True)
+    # --- END UPDATED SECTION ---
 
     if map_df.empty:
         st.warning("No data available for selected filters")
     else:
-        # Percentiles
+        # (Keep the rest of your mapping and colormap code exactly as it is)
         p0  = np.percentile(map_df["Yield"], 0)
         p25 = np.percentile(map_df["Yield"], 25)
         p50 = np.percentile(map_df["Yield"], 50)
