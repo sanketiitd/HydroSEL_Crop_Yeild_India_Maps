@@ -6,7 +6,8 @@ from streamlit_folium import st_folium
 import branca.colormap as cm
 import numpy as np
 from folium.plugins import Fullscreen
-
+import base64
+import os
 
 # -------------------------------------------------
 # PAGE CONFIG
@@ -14,41 +15,38 @@ from folium.plugins import Fullscreen
 st.set_page_config(layout="wide", page_title="Crop Yield Dashboard")
 
 # -------------------------------------------------
-# HEADER (LOGO + TITLE)
+# HEADER (BANNER WITH BACKGROUND)
 # -------------------------------------------------
-col1, col2, col3 = st.columns([1, 6, 1])
+def get_base64_img(file_path):
+    if os.path.isfile(file_path):
+        with open(file_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    return ""
 
-with col1:
-    st.image("logo.png", width=80)
+# Load assets for the banner
+bg_b64 = get_base64_img("bg.png")
+logo_b64 = get_base64_img("logo.png")
 
-with col2:
-    st.markdown(
-        """
-        <h1 style='text-align:center; margin-bottom:0;'>
-        <span style="color:#3194eb;">Hydro</span>
-        <span style="color:#0b5394;"> - </span>
-        <span style="color:#ff9900;">S</span><span style="color:#3194eb;">ocio</span>
-        <span style="color:#0b5394;"> - </span>
-        <span style="color:#6aa84f;">E</span><span style="color:#3194eb;">co</span>
-        <span style="color:#0b5394;"> </span>
-        <span style="color:#3d85c6;">Lab</span>
-        <br>
-        <span style="color:#0b5394;">(</span>
-        <span style="color:#3194eb;">Hydro</span>
-        <span style="color:#0b5394;">-</span>
-        <span style="color:#ff9900;">S</span>
-        <span style="color:#6aa84f;">E</span>
-        <span style="color:#3d85c6;">L</span>
-        <span style="color:#0b5394;">)</span>
-        </h1>
-        <p style='text-align:center; color:gray; margin-top:5px;'>
-        India Crop Yield Dashboard
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
-with col3:
-    st.image("logo.png", width=80)
+# Constructing the flattened HTML banner to prevent markdown code-block errors
+banner_html = f"""<div style="position: relative; background-image: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), url('data:image/png;base64,{bg_b64}'); background-size: cover; background-position: center; padding: 25px 40px; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #ddd; margin-bottom: 20px;">
+<img src="data:image/png;base64,{logo_b64}" style="width: 80px; height: auto;">
+<div style="text-align: center; flex-grow: 1; font-family: 'Helvetica Neue', Arial, sans-serif;">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; border-bottom: none; line-height: 1.2;">
+<span style="color:#3194eb;">Hydro</span><span style="color:#0b5394;"> - </span><span style="color:#ff9900;">S</span><span style="color:#3194eb;">ocio</span><span style="color:#0b5394;"> - </span><span style="color:#6aa84f;">E</span><span style="color:#3194eb;">co</span> <span style="color:#3d85c6;">Lab</span>
+<br>
+<span style="color:#0b5394;">(</span><span style="color:#3194eb;">Hydro</span><span style="color:#0b5394;">-</span><span style="color:#ff9900;">S</span><span style="color:#6aa84f;">E</span><span style="color:#3d85c6;">L</span><span style="color:#0b5394;">)</span>
+</h1>
+
+</div>
+<img src="data:image/png;base64,{logo_b64}" style="width: 80px; height: auto;">
+</div>"""
+
+# Render the banner using st.html (or st.markdown fallback)
+try:
+    st.html(banner_html)
+except AttributeError:
+    st.markdown(banner_html, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -70,7 +68,7 @@ df = load_crop_data()
 # -------------------------------------------------
 # SIDEBAR
 # -------------------------------------------------
-st.sidebar.title("Select Filters")
+st.sidebar.title("India Crop Yield Dashboard")
 
 apply_filters = st.sidebar.checkbox("Apply Filters")
 
