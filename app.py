@@ -14,6 +14,16 @@ import os
 # -------------------------------------------------
 st.set_page_config(layout="wide", page_title="Crop Yield Dashboard")
 
+# Reduce the default top padding of Streamlit to make the banner sit better
+# We reduce it slightly more (1.2rem instead of 1.5rem) to accommodate the taller banner
+st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 1.2rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # -------------------------------------------------
 # HEADER (BANNER WITH BACKGROUND)
 # -------------------------------------------------
@@ -28,19 +38,53 @@ def get_base64_img(file_path):
 bg_b64 = get_base64_img("bg.png")
 logo_b64 = get_base64_img("logo.png")
 
-# Constructing the flattened HTML banner to prevent markdown code-block errors
-banner_html = f"""<div style="position: relative; background-image: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), url('data:image/png;base64,{bg_b64}'); background-size: cover; background-position: center; padding: 25px 40px; border-radius: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #ddd; margin-bottom: 20px;">
-<img src="data:image/png;base64,{logo_b64}" style="width: 80px; height: auto;">
-<div style="text-align: center; flex-grow: 1; font-family: 'Helvetica Neue', Arial, sans-serif;">
-<h1 style="margin: 0; font-size: 34px; font-weight: 800; border-bottom: none; line-height: 1.2;">
-<span style="color:#3194eb;">Hydro</span><span style="color:#0b5394;"> - </span><span style="color:#ff9900;">S</span><span style="color:#3194eb;">ocio</span><span style="color:#0b5394;"> - </span><span style="color:#6aa84f;">E</span><span style="color:#3194eb;">co</span> <span style="color:#3d85c6;">Lab</span>
-<br>
-<span style="color:#0b5394;">(</span><span style="color:#3194eb;">Hydro</span><span style="color:#0b5394;">-</span><span style="color:#ff9900;">S</span><span style="color:#6aa84f;">E</span><span style="color:#3d85c6;">L</span><span style="color:#0b5394;">)</span>
-</h1>
+# Constructing the banner with modified height and centering
+# Changes:
+# 1. Padding increased to 60px 40px (was 20px 40px) to make the banner taller.
+# 2. background-size set to 110% to slightly "zoom" and show more of the image, ensuring it fills the taller height.
+# 3. display: flex and align-items: center remain to keep everything centered in the new taller space.
+# 4. background-image linear-gradient slightly strengthened (0.7 -> 0.75) for better text contrast.
+banner_html = f"""
+<div style="
+    position: relative; 
+    background-image: linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0.75)), url('data:image/png;base64,{bg_b64}'); 
+    background-size: 110%; /* Fills the taller container */
+    background-position: center top; 
+    padding: 60px 40px; /* Greatly increased top/bottom padding for height */
+    border-radius: 5px; 
+    display: flex; 
+    align-items: center; /* This centers everything vertically */
+    justify-content: space-between; 
+    border-bottom: 3px solid #3d85c6;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    
+    <img src="data:image/png;base64,{logo_b64}" style="width: 100px; height: auto;">
+    
+    <div style="text-align: center; flex-grow: 1;">
+        <h1 style="
+            margin: 0; 
+            font-family: 'Rockwell', 'Courier Bold', serif; 
+            font-size: 42px; 
+            border-bottom: none; 
+            line-height: 1.1;
+            letter-spacing: 1px;">
+            <span style="color: #3194eb; font-weight: 700;">Hydro</span><span style="color: #0b5394; font-weight: 400;">-</span><span style="color: #ff9900; font-weight: 700;">S</span><span style="color: #0b5394; font-weight: 400;">ocio-</span><span style="color: #6aa84f; font-weight: 700;">E</span><span style="color: #0b5394; font-weight: 400;">co </span><span style="color: #3d85c6; font-weight: 700;">L</span><span style="color: #0b5394; font-weight: 400;">ab</span>
+        </h1>
+        <h2 style="
+            margin: 8px 0 0 0; /* Slight increase in space between titles */
+            font-family: 'Rockwell', serif; 
+            font-size: 34px; 
+            font-weight: 400; 
+            color: #0b5394;
+            border-bottom: none;">
+            (<span style="color: #3194eb;">H</span>ydro-<span style="color: #ff9900;">S</span><span style="color: #6aa84f;">E</span><span style="color: #3d85c6;">L</span>)
+        </h2>
+    </div>
 
+    <img src="data:image/png;base64,{logo_b64}" style="width: 100px; height: auto;">
 </div>
-<img src="data:image/png;base64,{logo_b64}" style="width: 80px; height: auto;">
-</div>"""
+"""
 
 # Render the banner using st.html (or st.markdown fallback)
 try:
@@ -209,23 +253,23 @@ if apply_filters:
             <div style="margin-top:8px;">
                 <div style="display:flex; align-items:center; margin-bottom:5px;">
                     <div style="width:20px;height:14px;background:#ffffe5;border:1px solid #ccc;margin-right:8px;flex-shrink:0;"></div>
-                    <span style="color:black;">0–25th pct &nbsp;(&lt; {round(p25, 2)} t/ha)</span>
+                    <span style="color:black;">0–25th pct  (< {round(p25, 2)} t/ha)</span>
                 </div>
                 <div style="display:flex; align-items:center; margin-bottom:5px;">
                     <div style="width:20px;height:14px;background:#d9f0a3;border:1px solid #ccc;margin-right:8px;flex-shrink:0;"></div>
-                    <span style="color:black;">25–50th pct &nbsp;({round(p25, 2)} – {round(p50, 2)} t/ha)</span>
+                    <span style="color:black;">25–50th pct  ({round(p25, 2)} – {round(p50, 2)} t/ha)</span>
                 </div>
                 <div style="display:flex; align-items:center; margin-bottom:5px;">
                     <div style="width:20px;height:14px;background:#78c679;border:1px solid #ccc;margin-right:8px;flex-shrink:0;"></div>
-                    <span style="color:black;">50–75th pct &nbsp;({round(p50, 2)} – {round(p75, 2)} t/ha)</span>
+                    <span style="color:black;">50–75th pct  ({round(p50, 2)} – {round(p75, 2)} t/ha)</span>
                 </div>
                 <div style="display:flex; align-items:center; margin-bottom:5px;">
                     <div style="width:20px;height:14px;background:#238443;border:1px solid #ccc;margin-right:8px;flex-shrink:0;"></div>
-                    <span style="color:black;">75–95th pct &nbsp;({round(p75, 2)} – {round(p95, 2)} t/ha)</span>
+                    <span style="color:black;">75–95th pct  ({round(p75, 2)} – {round(p95, 2)} t/ha)</span>
                 </div>
                 <div style="display:flex; align-items:center;">
                     <div style="width:20px;height:14px;background:#005a32;border:1px solid #ccc;margin-right:8px;flex-shrink:0;"></div>
-                    <span style="color:black;">&gt; 95th pct &nbsp;({round(p95, 2)}+ t/ha)</span>
+                    <span style="color:black;">> 95th pct  ({round(p95, 2)}+ t/ha)</span>
                 </div>
             </div>
             <div style="margin-top:8px; font-size:10px; color:#888;">
