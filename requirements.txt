@@ -7,3 +7,4 @@ branca
 numpy
 shapely
 pyogrio
+plotly
